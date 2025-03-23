@@ -14,7 +14,7 @@ from requests.auth import HTTPBasicAuth
 class ODLController:
     """Interface for interacting with the OpenDaylight controller."""
     
-    def __init__(self, ip='192.168.35.25', port=8181, username='admin', password='admin'):
+    def __init__(self, ip='opendaylight', port=8181, username='admin', password='admin'):
         """Initialize the ODL controller interface with connection parameters."""
         self.base_url = f"http://{ip}:{port}/restconf"
         self.auth = HTTPBasicAuth(username, password)

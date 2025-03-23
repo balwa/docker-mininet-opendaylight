@@ -1,26 +1,43 @@
 FROM ubuntu:20.04
 
-USER root
-WORKDIR /root
+# Prevent apt from asking for user input
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    dnsutils \
-    ifupdown \
-    iproute2 \
-    iptables \
-    iputils-ping \
+# Install required packages
+RUN apt-get update && apt-get install -y \
     mininet \
     net-tools \
+    iputils-ping \
+    iproute2 \
     openvswitch-switch \
-    openvswitch-testcontroller \
+    wget \
+    curl \
+    python3 \
+    python3-pip \
+    iperf3 \
     tcpdump \
+    wireshark-common \
+    netcat \
     vim \
-    x11-xserver-utils \
-    xterm \
- && rm -rf /var/lib/apt/lists/* \
- && touch /etc/network/interfaces
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Install Python 3 packages needed for the script
+RUN pip3 install \
+    requests \
+    matplotlib \
+    numpy \
+    networkx \
+    pyvis \
+    mininet
+
+# Setup OVS
+RUN mkdir -p /usr/local/var/run/openvswitch
+
+# Set working directory
+WORKDIR /root
+
+# Expose ports
 EXPOSE 6633 6653 6640
 
 ENTRYPOINT ["/bin/bash", "-c", "service openvswitch-switch start && ovs-vsctl set-manager ptcp:6640 && tail -f /dev/null"]

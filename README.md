@@ -54,7 +54,7 @@ In the OpenDaylight UI, navigate to "Topology" to view the network.
 You can also check OpenFlow switch connections using the REST API:
 
 ```bash
-curl -u admin:admin http://localhost:8181/restconf/operational/opendaylight-inventory:nodes/
+curl -u admin:admin http://<host-ip>:8181/restconf/operational/opendaylight-inventory:nodes/
 ```
 
 ## Custom Topologies

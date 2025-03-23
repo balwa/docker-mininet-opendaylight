@@ -1,0 +1,50 @@
+services:
+  opendaylight:
+    build:
+      context: opendaylight
+      dockerfile: Dockerfile.opendaylight
+    container_name: odl-oxygen
+    ports:
+      - "8181:8181"  # RESTCONF API and web interface
+      - "6633:6633"  # OpenFlow switch connections
+      - "8101:8101"  # Karaf SSH
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    volumes:
+      - odl-data:/opt/opendaylight/karaf-0.8.4/data
+    networks:
+      - sdn-net
+
+  mininet:
+    build:
+      context: mininet
+      dockerfile: Dockerfile.mininet
+    container_name: mininet
+    privileged: true
+    tty: true
+    stdin_open: true
+    networks:
+      - sdn-net
+    depends_on:
+      - opendaylight
+    environment:
+      - DISPLAY
+    volumes:
+      - ./topologies:/root/topologies
+      - /lib/modules:/lib/modules:ro
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    command: >
+      bash -c "
+      echo 'Waiting for OpenDaylight to initialize...' &&
+      sleep 30 &&
+      echo 'Ready! Use: docker exec -it mininet mn --controller=remote,ip=opendaylight,port=6633' &&
+      tail -f /dev/null"
+
+networks:
+  sdn-net:
+    driver: bridge
+
+volumes:
+  odl-data:

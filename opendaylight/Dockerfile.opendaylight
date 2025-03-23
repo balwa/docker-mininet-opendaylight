@@ -1,0 +1,23 @@
+FROM eclipse-temurin:8-jdk
+
+# Install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends wget tar libleveldb-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create ODL directory
+RUN mkdir /odl
+
+# Copy and extract local ODL Karaf
+COPY karaf-0.8.4.tar.gz /tmp/
+RUN tar -xzf /tmp/karaf-0.8.4.tar.gz -C /odl && \
+    rm -f /tmp/karaf-0.8.4.tar.gz
+
+WORKDIR /odl
+
+# Add odl-l2switch-switch-ui to the featuresBoot property
+RUN sed -i '/^featuresBoot *=/ s/$/,odl-l2switch-switch-ui,odl-dluxapps-applications/' /odl/karaf-0.8.4/etc/org.apache.karaf.features.cfg
+
+EXPOSE 8181 6633 8101
+
+ENTRYPOINT ["/odl/karaf-0.8.4/bin/karaf", "server"]
